@@ -215,7 +215,7 @@ class Jh_Nyt_Top_Stories {
 		return $this->version;
 	}
 	
-	/*function that runs when shortcode is called
+	//function that runs when shortcode is called
 	function nyt_top_stories_shortcode() { 
   
 	//Things that you want to do.
@@ -256,6 +256,6 @@ class Jh_Nyt_Top_Stories {
 		return $nyt_shortcode;
 		}
 		//register shortcode
-		add_shortcode('topstories', 'nyt_top_stories_shortcode');
+		add_shortcode('nyttopstories', 'nyt_top_stories_shortcode');
 */
 }
