@@ -39,17 +39,17 @@ add_action( 'init', 'create_posttype' );
 //Setup a function that automatically runs every hour
 register_activation_hook( __FILE__, 'my_activation' );
 
-add_action( 'my_hourly_event', 'do_this_hourly' );
+add_action( 'my_hourly_event', 'retrieve_top_stories' );
  
 function my_activation() {
     wp_schedule_event( time(), 'hourly', 'my_hourly_event' );
 }
 
 //Set and action for the hourly data
-add_action( 'wp_ajax_my_action', 'top_stories_action' );
+add_action( 'wp_ajax_top_stories_action', 'retrieve_top_stories' );
 
 //Use the NY Times Api to retrieve the current "Top Stories" 
-function do_this_hourly() {
+function retrieve_top_stories() {
     
   $response = wp_remote_get( 'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=iKdsfNemAIkxj1JGZZcFdq9YAhjShGHW' );
  
@@ -81,7 +81,7 @@ WP_CLI::add_command( 'retrieve top stories',
 	function () {
 		WP_CLI::line( 'Starting...' );
 		try {
-			do_this_hourly();
+			retrieve_top_stories();
 		} catch ( \Throwable $e ) {
 			WP_CLI::error( $e->getMessage() );
 			throw $e;
