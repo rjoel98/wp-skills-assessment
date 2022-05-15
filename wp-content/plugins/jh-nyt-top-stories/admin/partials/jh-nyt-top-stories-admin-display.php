@@ -117,7 +117,7 @@ function nyt_top_stories(){
     
 }
 
-function Your_Plugin_text(){?>
+function NYT_Top_Stories(){?>
 	<div class="wrap">
 	<h1>your first plugin</h1>
 	<button onclick="top_stories_ajax_call()">Update Stories</button>
