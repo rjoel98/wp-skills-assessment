@@ -252,10 +252,10 @@ class Jh_Nyt_Top_Stories {
 		?>
 		</ul>'; 
   
-//Return Output
-return $nyt_shortcode;
-}
-//register shortcode
-add_shortcode('greeting', 'wpb_demo_shortcode');
+		//Return Output
+		return $nyt_shortcode;
+		}
+		//register shortcode
+		add_shortcode('top_5_nyt_stories', 'nyt_top_stories_shortcode');
 
 }
