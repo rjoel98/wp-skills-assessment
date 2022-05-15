@@ -108,8 +108,23 @@ function manually_pull_top_stories() { ?>
 	});
 	</script> <?php
 }
+
+add_action('admin_menu', 'nyt_top_stories');
+
+
+function nyt_top_stories(){
+    add_menu_page('NYTTopStories', 'NYT_Top_Stories', 'manage_options', 'nyt_stories', 'NYT_Top_Stories');
+    
+}
+
+function Your_Plugin_text(){?>
+	<div class="wrap">
+	<h1>your first plugin</h1>
+	<button onclick="top_stories_ajax_call()">Update Stories</button>
+	</div>
+<?php
+}
 ?>
 
-<button onclick="top_stories_ajax_call()">Update Stories</button>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
