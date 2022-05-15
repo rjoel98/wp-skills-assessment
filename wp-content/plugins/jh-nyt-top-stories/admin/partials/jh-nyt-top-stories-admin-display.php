@@ -45,6 +45,9 @@ function my_activation() {
     wp_schedule_event( time(), 'hourly', 'my_hourly_event' );
 }
 
+//Set and action for the hourly data
+add_action( 'wp_ajax_my_action', 'top_stories_action' );
+
 //Use the NY Times Api to retrieve the current "Top Stories" 
 function do_this_hourly() {
     
@@ -55,7 +58,9 @@ function do_this_hourly() {
       $results = $body['results'];
       
       foreach ($results as $article) {
-         $my_post = array(
+        global $wpdb;
+        
+        $my_post = array(
           'post_title' => $article['title'],
           'post_excerpt' => $article['abstract'],
           'post_date' => $article['published_date'],
@@ -72,6 +77,39 @@ function do_this_hourly() {
    }
 }
 
+WP_CLI::add_command( 'retrieve top stories',
+	function () {
+		WP_CLI::line( 'Starting...' );
+		try {
+			do_this_hourly();
+		} catch ( \Throwable $e ) {
+			WP_CLI::error( $e->getMessage() );
+			throw $e;
+		}
+
+		WP_CLI::success( "Success! Most recent stories have been uploaded to the site." );
+	}
+);
+
+
+add_action( 'admin_footer', 'manually_pull_top_stories' );
+
+function manually_pull_top_stories() { ?>
+	<script type="text/javascript" >
+	function top_stories_ajax_call() {
+
+		var data = {
+			'action': 'top_stories_action',
+		};
+
+		jQuery.post(ajaxurl, data, function(response) {
+			alert('Got this from the server: ' + response);
+		});
+	});
+	</script> <?php
+}
 ?>
+
+<button onclick="top_stories_ajax_call()">Update Stories</button>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
