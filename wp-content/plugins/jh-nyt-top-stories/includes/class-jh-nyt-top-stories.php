@@ -214,5 +214,48 @@ class Jh_Nyt_Top_Stories {
 	public function get_version() {
 		return $this->version;
 	}
+	
+	//function that runs when shortcode is called
+	function nyt_top_stories_shortcode() { 
+  
+	//Things that you want to do.
+	$nyt_shortcode = 	'
+		<ul>
+
+		<?php
+		// Define our WP Query Parameters
+		
+		$args = array(  
+        	"post_type" => "services",
+      		"posts_per_page" => 5, 
+        	"orderby" => "date", 
+        	"order" => "ASC", 
+    		);
+  
+		$the_query = new WP_Query( $args );
+
+		// Start our WP Query
+		while ($the_query -> have_posts()) : $the_query -> the_post();
+		// Display the Post Title with Hyperlink and Byline
+		?>
+  
+		<li><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></li>
+  
+		<li><?php
+		// Display the Post Byline
+		the_excerpt(__("(more…)")); ?></li>
+  
+		<?php
+		// Repeat the process and reset once it hits the limit
+		endwhile;
+		wp_reset_postdata();
+		?>
+		</ul>'; 
+  
+//Return Output
+return $nyt_shortcode;
+}
+//register shortcode
+add_shortcode('greeting', 'wpb_demo_shortcode');
 
 }
