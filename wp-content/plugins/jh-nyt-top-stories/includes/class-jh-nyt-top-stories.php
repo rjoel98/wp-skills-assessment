@@ -256,6 +256,6 @@ class Jh_Nyt_Top_Stories {
 		return $nyt_shortcode;
 		}
 		//register shortcode
-		add_shortcode('top_5_nyt_stories', 'nyt_top_stories_shortcode');
+		add_shortcode('topstories', 'nyt_top_stories_shortcode');
 
 }
