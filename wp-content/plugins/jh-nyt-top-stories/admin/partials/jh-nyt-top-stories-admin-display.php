@@ -67,50 +67,10 @@ function do_this_hourly() {
           );
         
           //Check if post exists/insert into the database if it does not.
-          if (post_exists( $my_post )) {
-            return;
-          } else {
-            wp_insert_post( $my_post );
-          }
+          post_exists( $my_post ) or wp_insert_post( $my_post );
       }
    }
 }
-
-//function that runs when shortcode is called
-function nyt_top_stories_shortcode() { 
-  
-//Things that you want to do.
-$nyt_shortcode = 	'
-<ul>
-  
-<?php
-// Define our WP Query Parameters
-$the_query = new WP_Query( 'posts_per_page=5' ); ?>
-  
-<?php
-// Start our WP Query
-while ($the_query -> have_posts()) : $the_query -> the_post();
-// Display the Post Title with Hyperlink
-?>
-  
-<li><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></li>
-  
-<li><?php
-// Display the Post Excerpt
-the_excerpt(__('(more…)')); ?></li>
-  
-<?php
-// Repeat the process and reset once it hits the limit
-endwhile;
-wp_reset_postdata();
-?>
-</ul>'; 
-  
-//Return Output
-return $nyt_shortcode;
-}
-//register shortcode
-add_shortcode('greeting', 'wpb_demo_shortcode');
 
 ?>
 
