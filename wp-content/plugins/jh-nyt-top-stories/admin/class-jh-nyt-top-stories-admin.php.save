@@ -150,7 +150,6 @@ function retrieve_top_stories() {
       
       foreach ($results as $article) {
         global $wpdb;
-
         
         $my_post = array(
           'post_title' => $article['title'],
@@ -160,18 +159,30 @@ function retrieve_top_stories() {
           'meta_input' => array( 'URL' => $article['url'],'byline' => $article['byline']),
           'post_category' => $article['section'],
           'tags_input' => array( $article['des_facet']),
-		  'post_type' => 'nyt_top_stories'
+	  'post_type' => 
           );
-		  //print_r($my_post);
-		  echo "<br/>";
-		  $title = $article['title'];
-		  echo '<br> Title: '.$title.'<br/> Find Post:'. get_page_by_title($title).'<br/><br/>';
 		  
+		  print_r($my_post);
+        
           //Check if post exists/insert into the database if it does not.
-          if ( get_page_by_title( $title ) == NULL ){echo "Redundancy Test";/*wp_insert_post( $my_post )*/}
+          if ( get_page_by_title( $article['title'] ) === null ){} else{ wp_insert_post( $my_post );}
       }
    }
 }
+
+/*WP_CLI::add_command( 'retrieve top stories',
+	function () {
+		WP_CLI::line( 'Starting...' );
+		try {
+			retrieve_top_stories();
+		} catch ( \Throwable $e ) {
+			WP_CLI::error( $e->getMessage() );
+			throw $e;
+		}
+
+		WP_CLI::success( "Success! Most recent stories have been uploaded to the site." );
+	}
+);*/
 
 
 add_action( 'admin_footer', 'manually_pull_top_stories' );

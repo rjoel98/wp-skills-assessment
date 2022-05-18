@@ -214,48 +214,25 @@ class Jh_Nyt_Top_Stories {
 	public function get_version() {
 		return $this->version;
 	}
+}
 	
-	/*function that runs when shortcode is called
-	function nyt_top_stories_shortcode() { 
-  
-	//Things that you want to do.
-	$nyt_shortcode = 	'
-		<ul>
+	//add shortcode
+	add_shortcode( 'nyt_top_stories_shortcode', 'nyt_top_stories_shortcode' );
 
-		<?php
-		// Define our WP Query Parameters
-		
-		$args = array(  
-        	"post_type" => "services",
-      		"posts_per_page" => 5, 
-        	"orderby" => "date", 
-        	"order" => "ASC", 
-    		);
-  
-		$the_query = new WP_Query( $args );
+	//function to be called when shortcode is loaded on a page
+	function nyt_top_stories_shortcode() {
+    	$posts = '<h3>New York Times - Top Stories</h3><ul>';
+    	$q = new WP_Query(array(
+        	'post_type' => 'nyt_top_stories',
+			'posts_per_page' => 5,
+			"orderby" => "date", 
+        	"order" => "DESC"
+   		));
+   		while ($q->have_posts()) {
+        	$q->the_post();
+        	$posts = $posts.'<a href='.get_permalink().'>'.get_the_title().'</a><br>';
 
-		// Start our WP Query
-		while ($the_query -> have_posts()) : $the_query -> the_post();
-		// Display the Post Title with Hyperlink and Byline
-		?>
-  
-		<li><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></li>
-  
-		<li><?php
-		// Display the Post Byline
-		the_excerpt(__("(more…)")); ?></li>
-  
-		<?php
-		// Repeat the process and reset once it hits the limit
-		endwhile;
-		wp_reset_postdata();
-		?>
-		</ul>'; 
-  
-		//Return Output
-		return $nyt_shortcode;
-		}
-		//register shortcode
-		add_shortcode('nyttopstories', 'nyt_top_stories_shortcode');
-*/
+    	}
+    	wp_reset_postdata();
+    	return $posts.'</ul>';
 }
