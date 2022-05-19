@@ -222,15 +222,16 @@ class Jh_Nyt_Top_Stories {
 	//function to be called when shortcode is loaded on a page
 	function nyt_top_stories_shortcode() {
     	$posts = '<h3>New York Times - Top Stories</h3><ul>';
-    	$q = new WP_Query(array(
+    	$query = new WP_Query(array(
         	'post_type' => 'nyt_top_stories',
 			'posts_per_page' => 5,
 			"orderby" => "date", 
         	"order" => "DESC"
    		));
-   		while ($q->have_posts()) {
-        	$q->the_post();
-        	$posts = $posts.'<a href='.get_permalink().'>'.get_the_title().'</a><br>';
+   		while ($query->have_posts()) {
+        	$query->the_post();
+			$byline = get_post_meta( get_the_ID() , 'byline', true);
+        	$posts = $posts.'<li><a href='.get_permalink().'>'.get_the_title().'</a><br>'.$byline.'</li><br/>';
 
     	}
     	wp_reset_postdata();

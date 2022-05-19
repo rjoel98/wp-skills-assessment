@@ -117,6 +117,7 @@ function create_posttype() {
             'rewrite' => array('slug' => 'nyt_top_stories'),
             'show_in_rest' => true,
             'exclude_from_search' => true,
+			'show_in_menu' => false
   
         )
     );
@@ -124,36 +125,31 @@ function create_posttype() {
 // Hooking up our function to theme setup
 add_action( 'init', 'create_posttype' );
 
-
-
 //Setup a function that automatically runs every hour
-register_activation_hook( __FILE__, 'my_activation' );
-
-add_action( 'my_hourly_event', 'retrieve_top_stories' );
- 
-function my_activation() {
-    wp_schedule_event( time(), 'hourly', 'my_hourly_event' );
+if ( ! wp_next_scheduled( 'nyt_task_hook' ) ) {
+    wp_schedule_event( time(), 'hourly', 'nyt_task_hook' );
 }
-
-//Set and action for the hourly data
-add_action( 'wp_ajax_top_stories_action', 'retrieve_top_stories' );
-
+add_action( 'nyt_task_hook', 'retrieve_top_stories' );
+ 
 //Use the NY Times Api to retrieve the current "Top Stories" 
 function retrieve_top_stories() {
     
   $response = wp_remote_get( 'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=iKdsfNemAIkxj1JGZZcFdq9YAhjShGHW' );
+	echo "Retrieved Data<br/>";
  
   if ( is_array( $response ) && ! is_wp_error( $response ) ) {
       $body = $response['body'];
 	  $body = json_decode($body, true);
       $results = $body['results'];
-      
+	  
+	  //Cycle through posts
       foreach ($results as $article) {
         global $wpdb;
 
-        
+		//Create post array
         $my_post = array(
           'post_title' => $article['title'],
+		  'post_content' => $article['url'],
           'post_excerpt' => $article['abstract'],
           'post_date' => $article['published_date'],
           'post_status' => 'publish',
@@ -162,50 +158,63 @@ function retrieve_top_stories() {
           'tags_input' => array( $article['des_facet']),
 		  'post_type' => 'nyt_top_stories'
           );
-		  //print_r($my_post);
-		  echo "<br/>";
+
 		  $title = $article['title'];
-		  echo '<br> Title: '.$title.'<br/> Find Post:'. get_page_by_title($title).'<br/><br/>';
 		  
           //Check if post exists/insert into the database if it does not.
-          if ( get_page_by_title( $title ) == NULL ){echo "Redundancy Test";/*wp_insert_post( $my_post )*/}
+          if (get_page_by_title($title, OBJECT, 'nyt_top_stories') == NULL ){ 
+			$my_post = wp_slash($my_post);
+			$insertPost = wp_insert_post($my_post);
+			  echo "Inserting Post<br/>";
+			if (is_wp_error($insertPost)) {
+  				$errors = $insertPost->get_error_messages();
+    			foreach ($errors as $error) {
+        			echo $error;
+    			}
+			}
+		}
       }
+	  echo "Done<br/>";
    }
 }
 
+//Create CLI command
+//WP_CLI::add_command( 'retrieve_top_stories', 'retrieve_top_stories' );
 
-add_action( 'admin_footer', 'manually_pull_top_stories' );
-
-function manually_pull_top_stories() { ?>
-	<script type="text/javascript" >
-	function top_stories_ajax_call() {
-
-		var data = {
-			'action': 'top_stories_action',
-		};
-
-		jQuery.post(ajaxurl, data, function(response) {
-			alert('Got this from the server: ' + response);
-		});
-	});
-	</script> <?php
-}
-
-
+//Add admin menu for CPT
 add_action('admin_menu', 'nyt_top_stories_menu');
 
-
 function nyt_top_stories_menu(){
-    add_menu_page('NYTTopStories', 'NYT Top Stories', 'manage_options', 'nyt_stories', 'NYT_Top_Stories');
-
+	
+	//Add main admin menu for CPT
+    add_menu_page('NYT Top Stories', 'NYT Top Stories - Settings', 'manage_options', 'nyt_stories', 'NYT_Top_Stories_Manual_Pull');
+	
+	//Add admin submenus for editing and adding  posts to CPT
+   	 add_submenu_page(
+     	   'nyt_stories',
+    	   'Edit Stories',
+		   'Edit Top Stories',
+           'edit_posts',
+           'edit.php?post_type=nyt_top_stories'
+    );
+	add_submenu_page(
+     	   'nyt_stories',
+    	   'Add New Story',
+		   'Add New Story',
+           'edit_posts',
+           'post-new.php?post_type=nyt_top_stories'
+    );
 }
 
-function NYT_Top_Stories(){?>
-	<div class="wrap">
-	<h1>NYT Top Stories Plugin</h1><br/>
-	<button onclick="top_stories_ajax_call()">Update Stories</button>
+function NYT_Top_Stories_Manual_Pull(){?>
+	<div class="wrap"><h1>Settings - NYT Top Stories Plugin</h1><br/>
+		<p>Use this button to manually update the stories from the New York Times Top Stories API</p>
+		<form  method="post">
+			<?php
+			if (array_key_exists ('submit', $_POST)) {retrieve_top_stories();}
+			wp_nonce_field(submit_button('Manually Update Stories'));?>
+		</form>
 	</div>
 <?php
 }
-retrieve_top_stories();
 ?>
