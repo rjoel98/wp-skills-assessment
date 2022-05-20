@@ -122,7 +122,7 @@ function create_posttype() {
         )
     );
 }
-// Hooking up our function to theme setup
+// Hooking up function to theme setup
 add_action( 'init', 'create_posttype' );
 
 //Setup a function that automatically runs every hour
@@ -138,17 +138,16 @@ function retrieve_top_stories() {
 	echo "Retrieved Data";
 	if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
 	
- 
+  //Check, format and cycle through posts
   if ( is_array( $response ) && ! is_wp_error( $response ) ) {
       $body = $response['body'];
-	  $body = json_decode($body, true);
+      $body = json_decode($body, true);
       $results = $body['results'];
 	  
-	  //Cycle through posts
       foreach ($results as $article) {
         global $wpdb;
 
-		//Create post array
+	//Create post array
         $my_post = array(
           'post_title' => $article['title'],
 		  'post_content' => $article['url'],
