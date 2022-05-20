@@ -135,7 +135,9 @@ add_action( 'nyt_task_hook', 'retrieve_top_stories' );
 function retrieve_top_stories() {
     
   $response = wp_remote_get( 'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=iKdsfNemAIkxj1JGZZcFdq9YAhjShGHW' );
-	echo "Retrieved Data<br/>";
+	echo "Retrieved Data";
+	if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
+	
  
   if ( is_array( $response ) && ! is_wp_error( $response ) ) {
       $body = $response['body'];
@@ -165,21 +167,28 @@ function retrieve_top_stories() {
           if (get_page_by_title($title, OBJECT, 'nyt_top_stories') == NULL ){ 
 			$my_post = wp_slash($my_post);
 			$insertPost = wp_insert_post($my_post);
-			  echo "Inserting Post<br/>";
+			echo "Inserting Post<br/>";
+			if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
 			if (is_wp_error($insertPost)) {
   				$errors = $insertPost->get_error_messages();
     			foreach ($errors as $error) {
         			echo $error;
+					if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
+					
     			}
 			}
 		}
       }
-	  echo "Done<br/>";
+	  echo "Done";
+	  if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
+	  
    }
 }
 
-//Create CLI command
-//WP_CLI::add_command( 'retrieve_top_stories', 'retrieve_top_stories' );
+//Create custom CLI command
+if (class_exists('WP_CLI')) {
+	WP_CLI::add_command('retrieve_top_stories', 'retrieve_top_stories');
+}
 
 //Add admin menu for CPT
 add_action('admin_menu', 'nyt_top_stories_menu');
