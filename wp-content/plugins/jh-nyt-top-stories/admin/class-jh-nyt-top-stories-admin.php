@@ -166,7 +166,7 @@ function retrieve_top_stories() {
           if (get_page_by_title($title, OBJECT, 'nyt_top_stories') == NULL ){ 
 			$my_post = wp_slash($my_post);
 			$insertPost = wp_insert_post($my_post);
-			echo "Inserting Post<br/>";
+			echo "Inserting Post...<br/>";
 			if(class_exists( 'WP_CLI' ) ){echo "\n";} else{echo "<br/>";}
 			if (is_wp_error($insertPost)) {
   				$errors = $insertPost->get_error_messages();
